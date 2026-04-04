@@ -1,6 +1,6 @@
 #include <jni.h>
 
-#include "firewall.h"
+#include "firewall/firewall.h"
 
 extern "C" JNIEXPORT jlong JNICALL
 Java_me_spencernold_janus_binding_NativeFirewall_fwStart(JNIEnv* env, jclass clazz, jint protocol, jint port, jint action) {
@@ -8,8 +8,8 @@ Java_me_spencernold_janus_binding_NativeFirewall_fwStart(JNIEnv* env, jclass cla
 }
 
 extern "C" JNIEXPORT jint JNICALL
-Java_me_spencernold_janus_binding_NativeFirewall_fwRule(JNIEnv* env, jclass clazz, jlong handle, jint action, jint network, jint broadcast) {
-    return fw_write_rule((firewall_t*) handle, action, network, broadcast);
+Java_me_spencernold_janus_binding_NativeFirewall_fwRule(JNIEnv* env, jclass clazz, jlong handle, jint action, jlong network, jlong broadcast) {
+    return fw_write_rule((firewall_t*) handle, action, (uint32_t) network, (uint32_t) broadcast);
 }
 
 extern "C" JNIEXPORT jint JNICALL

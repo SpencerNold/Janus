@@ -1,16 +1,18 @@
-package me.spencernold.janus.reader;
+package me.spencernold.janus.reader.def;
 
+import me.spencernold.janus.address.IpRange;
 import me.spencernold.janus.fw.*;
 import me.spencernold.janus.generic.Arrays2;
+import me.spencernold.janus.reader.AbstractParser;
 import me.spencernold.janus.reader.exceptions.ReaderException;
 import me.spencernold.janus.reader.exceptions.SyntaxException;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class Parser extends AbstractParser {
+public class DefParser extends AbstractParser {
 
-    public Parser(me.spencernold.janus.reader.Lexer lexer) throws ReaderException {
+    public DefParser(me.spencernold.janus.reader.def.DefLexer lexer) throws ReaderException {
         super(lexer);
     }
 
@@ -22,32 +24,32 @@ public class Parser extends AbstractParser {
     }
 
     private void parseInit(Firewall.Builder builder) throws ReaderException {
-        consume(Type.SEC_INIT);
-        while (nextIs(Type.PORT, Type.DEFAULT, Type.PROTOCOL)) {
-            if (lookahead.type() == Type.PORT) {
-                consume(Type.PORT);
+        consume(DefType.class, DefType.SEC_INIT);
+        while (nextIs(DefType.PORT, DefType.DEFAULT, DefType.PROTOCOL)) {
+            if (lookahead.is(DefType.PORT)) {
+                consume(DefType.class, DefType.PORT);
                 int port = parsePort();
                 builder.setPort(port);
-            } else if (lookahead.type() == Type.DEFAULT) {
-                consume(Type.DEFAULT);
-                Action action = parseEnum(Action.class, Type.ALLOW, Type.DENY, Type.TARPIT);
+            } else if (lookahead.is(DefType.DEFAULT)) {
+                consume(DefType.class, DefType.DEFAULT);
+                Action action = parseEnum(Action.class, DefType.ALLOW, DefType.DENY, DefType.TARPIT);
                 builder.setAction(action);
-            } else if (lookahead.type() == Type.PROTOCOL) {
-                consume(Type.PROTOCOL);
-                Protocol protocol = parseEnum(Protocol.class, Type.TCP, Type.UDP);
+            } else if (lookahead.is(DefType.PROTOCOL)) {
+                consume(DefType.class, DefType.PROTOCOL);
+                Protocol protocol = parseEnum(Protocol.class, DefType.TCP, DefType.UDP);
                 builder.setProtocol(protocol);
             }
         }
     }
 
     private void parseRules(Firewall.Builder builder) throws ReaderException {
-        consume(Type.SEC_RULES);
+        consume(DefType.class, DefType.SEC_RULES);
         List<Rule> rules = new ArrayList<>();
-        while (lookahead.type() != Type.EOF) {
-            String name = consume(Type.IDENTIFIER);
-            consume(Type.COMMA);
-            Action action = parseEnum(Action.class, Type.ALLOW, Type.DENY, Type.TARPIT);
-            consume(Type.COMMA);
+        while (!lookahead.is(DefType.EOF)) {
+            String name = consume(DefType.class, DefType.IDENTIFIER);
+            consume(DefType.class, DefType.COMMA);
+            Action action = parseEnum(Action.class, DefType.ALLOW, DefType.DENY, DefType.TARPIT);
+            consume(DefType.class, DefType.COMMA);
             IpRange addresses = parseCidr();
             rules.add(new Rule(name, action, addresses));
         }
@@ -55,12 +57,12 @@ public class Parser extends AbstractParser {
     }
 
     private IpRange parseCidr() throws ReaderException {
-        String value = consume(Type.CIDR);
+        String value = consume(DefType.class, DefType.CIDR);
         return IpRange.parseRange(value);
     }
 
-    private <T extends Enum<T>> T parseEnum(Class<T> clazz, Type... types) throws ReaderException {
-        String value = consume(types);
+    private <T extends Enum<T>> T parseEnum(Class<T> clazz, DefType... types) throws ReaderException {
+        String value = consume(DefType.class, types);
         try {
             return Enum.valueOf(clazz, value.toUpperCase());
         } catch (Exception e) {
@@ -71,7 +73,7 @@ public class Parser extends AbstractParser {
 
     private int parsePort() throws ReaderException {
         try {
-            String number = consume(Type.NUMBER);
+            String number = consume(DefType.class, DefType.NUMBER);
             int port = Integer.parseInt(number);
             if (port < 0 || port > 65535)
                 throw new SyntaxException("port is out of range (0-65535)");

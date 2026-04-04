@@ -1,8 +1,9 @@
 package me.spencernold.janus.binding;
 
+import me.spencernold.janus.address.IpRange;
 import me.spencernold.janus.fw.Action;
 import me.spencernold.janus.fw.Firewall;
-import me.spencernold.janus.fw.IpRange;
+import me.spencernold.janus.fw.Protocol;
 import me.spencernold.janus.fw.Rule;
 
 import java.io.IOException;
@@ -13,13 +14,16 @@ public class NativeFirewall extends Binding implements AutoCloseable {
         ensureBindingLoaded();
     }
 
+    private static NativeFirewall instance;
+
     private final long handle;
 
-    public NativeFirewall(Firewall firewall) throws IOException {
-        int protocol = firewall.protocol().ordinal();
+    private NativeFirewall(Firewall firewall) throws IOException {
+        instance = this;
+        Protocol protocol = firewall.protocol();
         int port = firewall.port();
         int action = firewall.action().ordinal();
-        this.handle = fwStart(protocol, port, action);
+        this.handle = fwStart(protocol.ordinal(), port, action);
         if (handle == 0L)
             throw new IOException("internal memory allocation and/or file read error");
     }
@@ -47,8 +51,14 @@ public class NativeFirewall extends Binding implements AutoCloseable {
         fwStop(handle);
     }
 
+    public static NativeFirewall create(Firewall firewall) throws IOException {
+        if (instance == null)
+            return new NativeFirewall(firewall);
+        return instance;
+    }
+
     private static native long fwStart(int protocol, int port, int action);
-    private static native int fwRule(long handle, int action, int network, int broadcast);
+    private static native int fwRule(long handle, int action, long network, long broadcast);
     private static native int fwCommit(long handle);
     private static native void fwStop(long handle);
 }

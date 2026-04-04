@@ -3,8 +3,8 @@
 
 #include "action.h"
 #include "protocol.h"
-#include "libutil/linkedlist.h"
-#include "libutil/executor.h"
+#include "../libutil/linkedlist.h"
+#include "../libutil/executor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -44,7 +44,7 @@ void create_default_deny_rule(firewall_t* fw, char* buf, size_t size) {
     snprintf(buf, size, "block in quick proto %s to any port %d", get_protocol(fw), fw->port);
 }
 
-void create_allow_rule(firewall_t* fw, char* buf, size_t size, int network, int broadcast) {
+void create_allow_rule(firewall_t* fw, char* buf, size_t size, uint32_t network, uint32_t broadcast) {
     char cidr[20];
     get_cidr(cidr, sizeof(cidr), network, broadcast);
     snprintf(buf, size, "pass in quick proto %s from %s to any port %d", get_protocol(fw), cidr, fw->port);
@@ -121,7 +121,7 @@ firewall_t* fw_start(int protocol, int port, int action) {
     return fw;
 }
 
-int fw_write_rule(firewall_t* fw, int action, int32_t network, int32_t broadcast) {
+int fw_write_rule(firewall_t* fw, int action, uint32_t network, uint32_t broadcast) {
     linked_list_t* list = (linked_list_t*) fw->handle;
     if (action == DENY || action == TARPIT) {
         char buf[256];

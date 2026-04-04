@@ -15,7 +15,7 @@ typedef struct firewall_t {
 } firewall_t;
 
 firewall_t* fw_start(int protocol, int port, int action);
-int fw_write_rule(firewall_t* firewall, int action, int32_t network, int32_t broadcast);
+int fw_write_rule(firewall_t* firewall, int action, uint32_t network, uint32_t broadcast);
 int fw_commit(firewall_t* firewall);
 void fw_stop(firewall_t* firewall);
 

@@ -14,6 +14,18 @@ val jflex by configurations.creating
 
 dependencies {
     jflex("de.jflex:jflex:1.9.1")
+
+    testImplementation("org.junit.jupiter:junit-jupiter:5.10.2")
+}
+
+tasks.test {
+    useJUnitPlatform()
+
+    testLogging {
+        //events("passed", "skipped", "failed")
+        events("failed") // I think I actually only care about failed tests for how many there are
+        showStandardStreams = true
+    }
 }
 
 val generateLexer by tasks.registering(JavaExec::class) {
@@ -25,7 +37,8 @@ val generateLexer by tasks.registering(JavaExec::class) {
 
     args = listOf(
         "-d", "${getBuildDirAbsolutePath()}/generated-src/jflex",
-        file("src/main/jflex/Lexer.flex").absolutePath
+        file("src/main/jflex/DefLexer.flex").absolutePath,
+        file("src/main/jflex/JLexer.flex").absolutePath
     )
 }
 

@@ -1,6 +1,6 @@
-package me.spencernold.janus.reader;
+package me.spencernold.janus.reader.def;
 
-public enum Type {
+public enum DefType {
     EOF,
 
     SEC_INIT, SEC_RULES,
