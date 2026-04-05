@@ -17,18 +17,30 @@ import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 %{
 
 private Token token(JType type) {
-    return new Token(type.ordinal(), yytext());
+    String text = yytext();
+    currentLine.append(text);
+    return new Token(type.ordinal(), text);
 }
 
 private UnexpectedTokenException error(String message) {
-    return new UnexpectedTokenException(
-        message + " at line " + (yyline + 1) + ", column " + (yycolumn + 1)
-    );
+    return new UnexpectedTokenException(this, message, yyline, yycolumn, yytext().length());
+}
+
+public String getRemainingLine() {
+      StringBuilder sb = new StringBuilder();
+      int pos = zzMarkedPos;
+      while (pos < zzEndRead) {
+          char c = zzBuffer[pos];
+          if (c == '\n') break;
+          sb.append(c);
+          pos++;
+      }
+      return sb.toString();
 }
 
 %}
 
-WHITESPACE = [ \t\r\n]+
+WHITESPACE = [ \t\r]+
 MAC        = [A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}
 V4CIDR     = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 PORT       = [0-9]+
@@ -36,7 +48,9 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-{WHITESPACE}      {}
+\n                { currentLine.setLength(0); }
+
+{WHITESPACE}      { currentLine.append(yytext()); }
 
 "."               { return token(JType.DOT); }
 "eth"             { return token(JType.ETH); }
@@ -56,5 +70,5 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 <<EOF>>           { return new Token(JType.EOF.ordinal(), ""); }
 
 
-{IDENTIFIER}      { throw error("Unknown keyword '" + yytext() + "'"); }
-.                 { throw error("Unknown token '" + yytext() + "'"); }
+{IDENTIFIER}      { currentLine.append(yytext()); throw error("Unknown keyword '" + yytext() + "'"); }
+.                 { currentLine.append(yytext()); throw error("Unknown token '" + yytext() + "'"); }

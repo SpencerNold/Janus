@@ -1,6 +1,7 @@
 package me.spencernold.janus.reader.def;
 
 import me.spencernold.janus.reader.Token;
+import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 
 %%
 
@@ -9,23 +10,46 @@ import me.spencernold.janus.reader.Token;
 %unicode
 %public
 %type Token
+%line
+%column
+%yylexthrow UnexpectedTokenException
 
 %{
 
 private Token token(DefType type) {
-    return new Token(type.ordinal(), yytext());
+      String text = yytext();
+      currentLine.append(text);
+    return new Token(type.ordinal(), text);
+}
+
+private UnexpectedTokenException error(String message) {
+    return new UnexpectedTokenException(this, message, yyline, yycolumn, yytext().length());
+}
+
+public String getRemainingLine() {
+      StringBuilder sb = new StringBuilder();
+      int pos = zzMarkedPos;
+      while (pos < zzEndRead) {
+          char c = zzBuffer[pos];
+          if (c == '\n') break;
+          sb.append(c);
+          pos++;
+      }
+      return sb.toString();
 }
 
 %}
 
-WHITESPACE = [ \t\r\n]+
+WHITESPACE = [ \t\r]+
 IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 NUMBER     = [0-9]+
 CIDR       = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 
 %%
 
-{WHITESPACE}      {}
+\n                { currentLine.setLength(0); }
+
+{WHITESPACE}      { currentLine.append(yytext()); }
 
 ".init"           { return token(DefType.SEC_INIT); }
 ".rules"          { return token(DefType.SEC_RULES); }
@@ -47,3 +71,5 @@ CIDR       = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 {NUMBER}          { return token(DefType.NUMBER); }
 {CIDR}            { return token(DefType.CIDR); }
 <<EOF>>           { return new Token(DefType.EOF.ordinal(), ""); }
+
+.                 { currentLine.append(yytext()); throw error("Unknown token '" + yytext() + "'"); }

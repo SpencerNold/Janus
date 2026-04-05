@@ -2,6 +2,7 @@ package me.spencernold.janus;
 
 import me.spencernold.janus.binding.NativeFirewall;
 import me.spencernold.janus.binding.PacketCapture;
+import me.spencernold.janus.fw.Action;
 import me.spencernold.janus.fw.Firewall;
 import me.spencernold.janus.fw.Protocol;
 import me.spencernold.janus.fw.Rule;
@@ -22,8 +23,8 @@ import java.util.concurrent.Executors;
 public class Sys implements AutoCloseable {
 
     private static final String SOURCE_FILE_NAME = "rules";
-    private static final String FIREWALL_FILE_NAME = "firewall.j";
-    private static final String INTERRUPTIONS_FILE_NAME = "interruptions.j";
+    private static final String FIREWALL_FILE_NAME = "firewall.janus";
+    private static final String INTERRUPTIONS_FILE_NAME = "interruptions.janus";
 
     private NativeFirewall nfw = null;
     private PacketCapture pcap = null;
@@ -69,7 +70,6 @@ public class Sys implements AutoCloseable {
                     }
                     if (!transportIntended)
                         return;
-                    System.out.println("In tee hee");
                     boolean test = false;
                     for (Query query : interruptions) {
                         test = query.test(frame);
@@ -77,14 +77,15 @@ public class Sys implements AutoCloseable {
                             break;
                     }
                     if (test) {
-                        // TODO Send close packet here if test fails
+                        // TODO Block and close connection
+                        // sudo pfctl -k target -k <this server>
                     }
                 }));
             });
         } catch (IOException e) {
             System.out.println("Internal Error: " + e.getMessage());
         } catch (ReaderException e) {
-            System.out.println("Syntax Error: " + e.getMessage());
+            System.err.println(e.getMessage());
         }
     }
 

@@ -5,6 +5,7 @@ import me.spencernold.janus.interrupt.Query;
 import me.spencernold.janus.reader.def.DefLexer;
 import me.spencernold.janus.reader.def.DefParser;
 import me.spencernold.janus.reader.exceptions.ReaderException;
+import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 import me.spencernold.janus.reader.janus.JLexer;
 import me.spencernold.janus.reader.janus.JParser;
 
