@@ -1,6 +1,6 @@
 package me.spencernold.janus.binding;
 
-import me.spencernold.janus.address.IpRange;
+import me.spencernold.janus.address.Ip4Range;
 import me.spencernold.janus.fw.Action;
 import me.spencernold.janus.fw.Firewall;
 import me.spencernold.janus.fw.Protocol;
@@ -30,7 +30,7 @@ public class NativeFirewall extends Binding implements AutoCloseable {
 
     public void write(Rule rule) throws IOException {
         Action action = rule.action();
-        IpRange target = rule.target();
+        Ip4Range target = rule.target();
         int result = fwRule(handle, action.ordinal(), target.min(), target.max());
         if (result != 0) {
             fwStop(handle);

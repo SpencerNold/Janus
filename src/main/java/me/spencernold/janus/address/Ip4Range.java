@@ -5,7 +5,7 @@ import me.spencernold.janus.reader.exceptions.SyntaxException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record IpRange(long min, long max) {
+public record Ip4Range(long min, long max) {
 
     private static final Pattern PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})(?:/(\\d{1,2}))?$");
 
@@ -17,13 +17,13 @@ public record IpRange(long min, long max) {
         return test(parseRange(address));
     }
 
-    public boolean test(IpRange range) {
+    public boolean test(Ip4Range range) {
         if (range.min > range.max)
             return false; // Bad input
         return range.min >= min && range.max <= max;
     }
 
-    public static IpRange parseRange(String cidr) throws SyntaxException {
+    public static Ip4Range parseRange(String cidr) throws SyntaxException {
         Matcher matcher = PATTERN.matcher(cidr);
         if (!matcher.find())
             throw new SyntaxException("IP not in CIDR notation: " + cidr);
@@ -43,8 +43,8 @@ public record IpRange(long min, long max) {
             long mask = prefix == 0 ? 0 : (-1L << (32 - prefix)) & 0xFFFFFFFFL;
             long network = ip & mask;
             long broadcast = (network | ~mask) & 0xFFFFFFFFL;
-            return new IpRange(network, broadcast);
+            return new Ip4Range(network, broadcast);
         }
-        return new IpRange(ip, ip);
+        return new Ip4Range(ip, ip);
     }
 }

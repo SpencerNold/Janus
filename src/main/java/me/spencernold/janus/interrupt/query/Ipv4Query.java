@@ -1,6 +1,6 @@
 package me.spencernold.janus.interrupt.query;
 
-import me.spencernold.janus.address.IpRange;
+import me.spencernold.janus.address.Ip4Range;
 import me.spencernold.janus.binding.Network;
 import me.spencernold.janus.interrupt.InetFrame;
 import me.spencernold.janus.interrupt.Query;
@@ -9,9 +9,9 @@ import java.util.List;
 
 public class Ipv4Query extends Query {
 
-    private final IpRange address;
+    private final Ip4Range address;
 
-    public Ipv4Query(IpRange address) {
+    public Ipv4Query(Ip4Range address) {
         this.address = address;
     }
 
@@ -69,7 +69,7 @@ public class Ipv4Query extends Query {
                 ((long) (packet[offset + 3] & 0xFF));
     }
 
-    public IpRange getAddress() {
+    public Ip4Range getAddress() {
         return address;
     }
 }

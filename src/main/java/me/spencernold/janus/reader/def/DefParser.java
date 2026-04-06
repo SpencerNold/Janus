@@ -1,6 +1,6 @@
 package me.spencernold.janus.reader.def;
 
-import me.spencernold.janus.address.IpRange;
+import me.spencernold.janus.address.Ip4Range;
 import me.spencernold.janus.fw.*;
 import me.spencernold.janus.generic.Arrays2;
 import me.spencernold.janus.reader.AbstractParser;
@@ -50,15 +50,15 @@ public class DefParser extends AbstractParser {
             consume(DefType.class, DefType.COMMA);
             Action action = parseEnum(Action.class, DefType.ALLOW, DefType.DENY, DefType.TARPIT);
             consume(DefType.class, DefType.COMMA);
-            IpRange addresses = parseCidr();
+            Ip4Range addresses = parseCidr();
             rules.add(new Rule(name, action, addresses));
         }
         builder.setRules(rules);
     }
 
-    private IpRange parseCidr() throws ReaderException {
+    private Ip4Range parseCidr() throws ReaderException {
         String value = consume(DefType.class, DefType.CIDR);
-        return IpRange.parseRange(value);
+        return Ip4Range.parseRange(value);
     }
 
     private <T extends Enum<T>> T parseEnum(Class<T> clazz, DefType... types) throws ReaderException {

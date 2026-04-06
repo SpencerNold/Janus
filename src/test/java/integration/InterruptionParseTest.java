@@ -1,6 +1,6 @@
 package integration;
 
-import me.spencernold.janus.address.IpRange;
+import me.spencernold.janus.address.Ip4Range;
 import me.spencernold.janus.address.MacAddress;
 import me.spencernold.janus.interrupt.Query;
 import me.spencernold.janus.interrupt.query.EthernetQuery;
@@ -57,7 +57,7 @@ public class InterruptionParseTest {
         Query q = queries.getFirst();
         Assertions.assertInstanceOf(Ipv4Query.class, q);
         Ipv4Query query = (Ipv4Query) q;
-        IpRange ip = query.getAddress();
+        Ip4Range ip = query.getAddress();
         Assertions.assertEquals(0, ip.max());
         Assertions.assertEquals(0, ip.min());
     }

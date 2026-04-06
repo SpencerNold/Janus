@@ -1,6 +1,6 @@
 package me.spencernold.janus.reader.janus;
 
-import me.spencernold.janus.address.IpRange;
+import me.spencernold.janus.address.Ip4Range;
 import me.spencernold.janus.address.MacAddress;
 import me.spencernold.janus.interrupt.Query;
 import me.spencernold.janus.interrupt.query.*;
@@ -64,29 +64,51 @@ public class JParser extends AbstractParser {
         consume(JType.class, JType.DOT);
         consume(JType.class, JType.ADDRESS);
         consume(JType.class, JType.EQ_OPER);
-        IpRange ipv4 = parseV4Cidr();
+        Ip4Range ipv4 = parseV4Cidr();
         return new Ipv4Query(ipv4);
     }
 
-    private IpRange parseV4Cidr() throws ReaderException {
+    private Ip4Range parseV4Cidr() throws ReaderException {
         Token token = lookahead.copy();
         String value = consume(JType.class, JType.V4CIDR);
         try {
-            return IpRange.parseRange(value);
+            return Ip4Range.parseRange(value);
         } catch (SyntaxException e) {
             throw new UnexpectedTokenException(lexer, token, "Unknown token '" + token.value() + "', expected valid CIDR format");
         }
     }
 
     private Query parseIpv6Query() throws ReaderException {
-        return new Ipv6Query();
+        return new Ipv6Query(); // TODO Implement
     }
 
     private Query parseTcpQuery() throws ReaderException {
-        return new TcpQuery(0); // For now
+        consume(JType.class, JType.TCP);
+        consume(JType.class, JType.DOT);
+        consume(JType.class, JType.ADDRESS);
+        consume(JType.class, JType.EQ_OPER);
+        int port = parsePort();
+        return new TcpQuery(port);
     }
 
     private Query parseUdpQuery() throws ReaderException {
-        return new UdpQuery(0); // For now
+        consume(JType.class, JType.UDP);
+        consume(JType.class, JType.DOT);
+        consume(JType.class, JType.ADDRESS);
+        consume(JType.class, JType.EQ_OPER);
+        int port = parsePort();
+        return new UdpQuery(port); // For now
+    }
+
+    private int parsePort() throws ReaderException {
+        Token token = lookahead.copy();
+        String value = consume(JType.class, JType.PORT);
+        try {
+            int port = Integer.parseInt(value);
+            if (port >= 0 && port <= 65535)
+                return port;
+        } catch (NumberFormatException ignored) { // Will go to error state
+        }
+        throw new UnexpectedTokenException(lexer, token, "Unknown token '" + token.value() + "', expected valid port number");
     }
 }
