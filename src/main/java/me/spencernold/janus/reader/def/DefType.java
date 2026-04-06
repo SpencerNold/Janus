@@ -13,5 +13,10 @@ public enum DefType {
 
     COMMA,
 
-    IDENTIFIER, NUMBER, CIDR
+    IDENTIFIER, NUMBER, CIDR;
+
+    @Override
+    public String toString() {
+        return "'" + name().toLowerCase() + "'";
+    }
 }

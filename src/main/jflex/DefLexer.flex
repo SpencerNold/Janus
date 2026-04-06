@@ -19,10 +19,10 @@ import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 private Token token(DefType type) {
       String text = yytext();
       currentLine.append(text);
-    return new Token(type.ordinal(), text);
+    return new Token(type.ordinal(), text, yyline, yycolumn);
 }
 
-private UnexpectedTokenException error(String message) {
+public UnexpectedTokenException error(String message) {
     return new UnexpectedTokenException(this, message, yyline, yycolumn, yytext().length());
 }
 
@@ -47,7 +47,7 @@ CIDR       = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 
 %%
 
-\n                { currentLine.setLength(0); }
+\n                { fullLines.add(currentLine.toString()); currentLine.setLength(0); }
 
 {WHITESPACE}      { currentLine.append(yytext()); }
 
@@ -67,9 +67,11 @@ CIDR       = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 
 ","               { return token(DefType.COMMA); }
 
+"localhost"       { return new Token(DefType.CIDR.ordinal(), "127.0.0.1", yyline, yycolumn); }
+
 {IDENTIFIER}      { return token(DefType.IDENTIFIER); }
 {NUMBER}          { return token(DefType.NUMBER); }
 {CIDR}            { return token(DefType.CIDR); }
-<<EOF>>           { return new Token(DefType.EOF.ordinal(), ""); }
+<<EOF>>           { return new Token(DefType.EOF.ordinal(), "", yyline, yycolumn); }
 
 .                 { currentLine.append(yytext()); throw error("Unknown token '" + yytext() + "'"); }

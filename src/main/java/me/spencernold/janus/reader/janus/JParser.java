@@ -5,7 +5,10 @@ import me.spencernold.janus.address.MacAddress;
 import me.spencernold.janus.interrupt.Query;
 import me.spencernold.janus.interrupt.query.*;
 import me.spencernold.janus.reader.AbstractParser;
+import me.spencernold.janus.reader.Token;
 import me.spencernold.janus.reader.exceptions.ReaderException;
+import me.spencernold.janus.reader.exceptions.SyntaxException;
+import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ public class JParser extends AbstractParser {
 
     public List<Query> parse() throws ReaderException {
         List<Query> queries = new ArrayList<>();
-        while (!lookahead.is(JType.EOF) && nextIs(JType.ETH, JType.IPV4, JType.IPV6, JType.TCP, JType.UDP)) {
+        while (nextIs(JType.ETH, JType.IPV4, JType.IPV6, JType.TCP, JType.UDP)) {
             if (lookahead.is(JType.ETH)) {
                 queries.add(parseEthernetQuery());
             } else if (lookahead.is(JType.IPV4)) {
@@ -31,6 +34,8 @@ public class JParser extends AbstractParser {
                 queries.add(parseUdpQuery());
             }
         }
+        if (!nextIs(JType.EOF))
+            throw new UnexpectedTokenException(lexer, lookahead, JType.ETH, JType.IPV4, JType.IPV6, JType.TCP, JType.UDP);
         return queries;
     }
 
@@ -45,8 +50,13 @@ public class JParser extends AbstractParser {
     }
 
     private MacAddress parseMac() throws ReaderException {
+        Token token = lookahead.copy();
         String address = consume(JType.class, JType.MAC);
-        return MacAddress.parseMac(address);
+        try {
+            return MacAddress.parseMac(address);
+        } catch (SyntaxException e) {
+            throw new UnexpectedTokenException(lexer, token, "Unknown token '" + token.value() + "', expected valid MAC format");
+        }
     }
 
     private Query parseIpv4Query() throws ReaderException {
@@ -59,8 +69,13 @@ public class JParser extends AbstractParser {
     }
 
     private IpRange parseV4Cidr() throws ReaderException {
+        Token token = lookahead.copy();
         String value = consume(JType.class, JType.V4CIDR);
-        return IpRange.parseRange(value);
+        try {
+            return IpRange.parseRange(value);
+        } catch (SyntaxException e) {
+            throw new UnexpectedTokenException(lexer, token, "Unknown token '" + token.value() + "', expected valid CIDR format");
+        }
     }
 
     private Query parseIpv6Query() throws ReaderException {

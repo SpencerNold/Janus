@@ -14,5 +14,10 @@ public enum JType {
 
     MAC, V4CIDR, PORT,
 
-    EQ_OPER, NEQ_OPER
+    EQ_OPER, NEQ_OPER;
+
+    @Override
+    public String toString() {
+        return "'" + name().toLowerCase() + "'";
+    }
 }

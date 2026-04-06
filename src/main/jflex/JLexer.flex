@@ -19,10 +19,10 @@ import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 private Token token(JType type) {
     String text = yytext();
     currentLine.append(text);
-    return new Token(type.ordinal(), text);
+    return new Token(type.ordinal(), text, yyline, yycolumn);
 }
 
-private UnexpectedTokenException error(String message) {
+public UnexpectedTokenException error(String message) {
     return new UnexpectedTokenException(this, message, yyline, yycolumn, yytext().length());
 }
 
@@ -48,7 +48,7 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
 
-\n                { currentLine.setLength(0); }
+\n                { fullLines.add(currentLine.toString()); currentLine.setLength(0); }
 
 {WHITESPACE}      { currentLine.append(yytext()); }
 
@@ -67,7 +67,7 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 {V4CIDR}          { return token(JType.V4CIDR); }
 {PORT}            { return token(JType.PORT); }
 
-<<EOF>>           { return new Token(JType.EOF.ordinal(), ""); }
+<<EOF>>           { return new Token(JType.EOF.ordinal(), "", yyline, yycolumn); }
 
 
 {IDENTIFIER}      { currentLine.append(yytext()); throw error("Unknown keyword '" + yytext() + "'"); }

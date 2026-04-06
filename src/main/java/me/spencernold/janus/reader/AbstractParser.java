@@ -4,7 +4,6 @@ import me.spencernold.janus.reader.exceptions.ReaderException;
 import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 public abstract class AbstractParser {
 
@@ -22,8 +21,8 @@ public abstract class AbstractParser {
         } catch (IOException e) {
             throw new UnexpectedTokenException("Unexpected <<EOF>>");
         } catch (Error e) {
-            // TODO Make this more explicit in error reading
-            throw new UnexpectedTokenException("Unknown token at line: n");
+            // This line should not be shown with the current implementation of the lexer
+            throw lexer.error("Unknown token");
         }
     }
 
@@ -40,7 +39,7 @@ public abstract class AbstractParser {
         boolean contains = nextIs(expected);
         if (!contains) {
             T[] types = clazz.getEnumConstants();
-            throw new UnexpectedTokenException("Unexpected Token: Found '%s', need '%s'", types[lookahead.type()], expected.length == 1 ? types[expected[0]].name() : Arrays.toString(expected));
+            throw new UnexpectedTokenException(lexer, lookahead, types);
         }
         String value = lookahead.value();
         lookahead = next();
