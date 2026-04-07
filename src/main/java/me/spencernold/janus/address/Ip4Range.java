@@ -47,4 +47,11 @@ public record Ip4Range(long min, long max) {
         }
         return new Ip4Range(ip, ip);
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Ip4Range ip))
+            return false;
+        return ip.min == min && ip.max == max;
+    }
 }

@@ -7,9 +7,10 @@ public record Firewall(Protocol protocol, int port, Action action, List<Rule> ru
 
     public static class Builder {
 
+        // Default values no matter what
         private Protocol protocol = Protocol.TCP;
-        private int port = -1;
-        private Action action = Action.ALLOW;
+        private int port = 80;
+        private Action action = Action.DENY;
         private List<Rule> rules = new ArrayList<>();
 
         public Builder setPort(int port) {

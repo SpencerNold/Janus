@@ -1,7 +1,10 @@
 package me.spencernold.janus.reader.def;
 
 import me.spencernold.janus.address.Ip4Range;
-import me.spencernold.janus.fw.*;
+import me.spencernold.janus.fw.Action;
+import me.spencernold.janus.fw.Firewall;
+import me.spencernold.janus.fw.Protocol;
+import me.spencernold.janus.fw.Rule;
 import me.spencernold.janus.generic.Arrays2;
 import me.spencernold.janus.reader.AbstractParser;
 import me.spencernold.janus.reader.exceptions.ReaderException;
