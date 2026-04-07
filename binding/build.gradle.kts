@@ -19,7 +19,7 @@ tasks.withType<CppCompile>().configureEach {
 }
 
 tasks.withType<LinkSharedLibrary>().configureEach {
-    linkerArgs.addAll(getLibrariesPCAP())
+    linkerArgs.addAll("-lpcap")
 }
 
 private fun getFlagsJNI(): List<String> {

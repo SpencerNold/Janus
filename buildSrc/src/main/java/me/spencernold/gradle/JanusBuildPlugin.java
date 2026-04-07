@@ -1,10 +1,9 @@
 package me.spencernold.gradle;
 
-import me.spencernold.gradle.tasks.CopyJarBuildOutputTask;
-import me.spencernold.gradle.tasks.CopyNativeBuildOutputTask;
-import me.spencernold.gradle.tasks.GenerateGrammarsTask;
+import me.spencernold.gradle.tasks.*;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
+import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPluginExtension;
 import org.gradle.api.tasks.JavaExec;
 import org.gradle.api.tasks.SourceSet;
@@ -31,9 +30,13 @@ public class JanusBuildPlugin implements Plugin<Project> {
         });
 
         // Binding Tasks
-        TaskProvider<CopyJarBuildOutputTask> copyJarBuildOutputTask = tasks.register("copyJarBuildOutputTask", CopyJarBuildOutputTask.class);
-        TaskProvider<CopyNativeBuildOutputTask> copyNativeBuildOutputTask = tasks.register("copyNativeBuildOutputTask", CopyNativeBuildOutputTask.class);
-        tasks.register("prepare", task -> {
+        TaskProvider<CopyJarBuildOutputTask> copyJarBuildOutputTask = tasks.register("copyJarBuildOutputTask", CopyJarBuildOutputTask.class, task -> {
+            task.dependsOn(tasks.named("jar"));
+        });
+        TaskProvider<CopyNativeBuildOutputTask> copyNativeBuildOutputTask = tasks.register("copyNativeBuildOutputTask", CopyNativeBuildOutputTask.class, task -> {
+            task.dependsOn(tasks.named("assemble"));
+        });
+        TaskProvider<Task> prepareTask = tasks.register("prepare", task -> {
             task.dependsOn(copyJarBuildOutputTask, copyNativeBuildOutputTask);
         });
         project.getPlugins().withId("application", plugin -> {
@@ -42,6 +45,12 @@ public class JanusBuildPlugin implements Plugin<Project> {
                 task.jvmArgs("-Djava.library.path=" + CopyNativeBuildOutputTask.getNativeDirectory(project));
                 task.setStandardInput(System.in);
             });
+        });
+
+        TaskProvider<CopyRunScriptTask> copyRunScriptTask = tasks.register("copyRunScript", CopyRunScriptTask.class);
+        // Distribute Tasks
+        tasks.register("distribute", DistributeTask.class, task -> {
+            task.dependsOn(prepareTask, copyRunScriptTask);
         });
     }
 }

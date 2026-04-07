@@ -27,13 +27,13 @@ public class CopyNativeBuildOutputTask extends Copy {
         else if (osName.contains("win"))
             osTarget = "windows";
         if (osTarget == null)
-            return null;
+            throw new IllegalStateException("Unsupported OS: " + osName);
         if (archName.equals("aarch64") || archName.equals("arm64"))
             archTarget = "arm64";
         else if (archName.equals("x86_64") || archName.equals("amd64"))
             archTarget = "x86_64";
         if (archTarget == null)
-            return null;
+            throw new IllegalStateException("Unsupported architecture: " + archName);
         return BuildDirectory.of("binding", "build", "lib", "main", "debug", osTarget, archTarget);
     }
 
