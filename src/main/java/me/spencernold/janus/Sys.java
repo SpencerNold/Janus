@@ -2,7 +2,6 @@ package me.spencernold.janus;
 
 import me.spencernold.janus.binding.NativeFirewall;
 import me.spencernold.janus.binding.PacketCapture;
-import me.spencernold.janus.fw.Action;
 import me.spencernold.janus.fw.Firewall;
 import me.spencernold.janus.fw.Protocol;
 import me.spencernold.janus.fw.Rule;
@@ -79,14 +78,20 @@ public class Sys implements AutoCloseable {
                     if (test) {
                         // TODO Block and close connection
                         // sudo pfctl -k target -k <this server>
+                        // then add to block list
                     }
                 }));
             });
         } catch (IOException e) {
-            System.out.println("Internal Error: " + e.getMessage());
+            Printer.setStream(System.err);
+            Printer.colorln(Printer.RED, "Internal Error: " + e.getMessage());
+            Printer.resetStream();
         } catch (ReaderException e) {
-            System.err.println(e.getMessage());
+            Printer.setStream(System.err);
+            Printer.colorln(Printer.RED, e.getMessage());
+            Printer.resetStream();
         }
+        Printer.printBanner();
     }
 
     private InputStream getFirewallInputStream() throws IOException {
