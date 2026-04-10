@@ -6,8 +6,11 @@ import me.spencernold.janus.fw.Firewall;
 import me.spencernold.janus.fw.Protocol;
 import me.spencernold.janus.fw.Rule;
 import me.spencernold.janus.interrupt.InetFrame;
-import me.spencernold.janus.interrupt.query.*;
 import me.spencernold.janus.interrupt.Query;
+import me.spencernold.janus.interrupt.query.EthernetQuery;
+import me.spencernold.janus.interrupt.query.Ipv4Query;
+import me.spencernold.janus.interrupt.query.Ipv6Query;
+import me.spencernold.janus.interrupt.query.TransportAddressQuery;
 import me.spencernold.janus.reader.Reader;
 import me.spencernold.janus.reader.exceptions.ReaderException;
 
@@ -58,16 +61,7 @@ public class Sys implements AutoCloseable {
                     Protocol protocol = frame.getProtocol();
                     if (protocol == null)
                         return;
-                    boolean transportIntended = false;
-                    switch (protocol) {
-                        case TCP -> {
-                            transportIntended = TcpQuery.isIntended(firewall, frame);
-                        }
-                        case UDP -> {
-                            transportIntended = UdpQuery.isIntended(firewall, frame);
-                        }
-                    }
-                    if (!transportIntended)
+                    if (!TransportAddressQuery.isIntended(firewall, frame))
                         return;
                     boolean test = false;
                     for (Query query : interruptions) {
@@ -82,11 +76,13 @@ public class Sys implements AutoCloseable {
                     }
                 }));
             });
-        } catch (IOException e) {
+        } catch (
+                IOException e) {
             Printer.setStream(System.err);
             Printer.colorln(Printer.RED, "Internal Error: " + e.getMessage());
             Printer.resetStream();
-        } catch (ReaderException e) {
+        } catch (
+                ReaderException e) {
             Printer.setStream(System.err);
             Printer.colorln(Printer.RED, e.getMessage());
             Printer.resetStream();

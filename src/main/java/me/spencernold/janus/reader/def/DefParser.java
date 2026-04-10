@@ -13,7 +13,7 @@ import me.spencernold.janus.reader.exceptions.SyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DefParser extends AbstractParser {
+public class DefParser extends AbstractParser<Firewall> {
 
     public DefParser(me.spencernold.janus.reader.def.DefLexer lexer) throws ReaderException {
         super(lexer);

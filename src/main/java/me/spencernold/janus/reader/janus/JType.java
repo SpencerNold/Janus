@@ -10,11 +10,17 @@ public enum JType {
     TCP,
     UDP,
 
-    ADDRESS,
+    ADDRESS, BODY,
 
-    MAC, V4CIDR, PORT,
+    MAC, V4CIDR, NUMBER,
 
-    EQ_OPER, NEQ_OPER;
+    HEX_ARR, STRING,
+
+    EQ_OPER, NOT_OPER, CONTAINS,
+
+    AND,
+
+    O_BRACKET, COMMA, C_BRACKET, O_CURLY, C_CURLY;
 
     @Override
     public String toString() {

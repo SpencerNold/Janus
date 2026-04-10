@@ -5,7 +5,7 @@ import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 
 import java.io.IOException;
 
-public abstract class AbstractParser {
+public abstract class AbstractParser<T> {
 
     protected final AbstractLexer lexer;
     protected Token lookahead;
@@ -14,6 +14,8 @@ public abstract class AbstractParser {
         this.lexer = lexer;
         this.lookahead = next();
     }
+
+    public abstract T parse() throws ReaderException;
 
     private Token next() throws ReaderException {
         try {
@@ -27,7 +29,7 @@ public abstract class AbstractParser {
     }
 
     @SafeVarargs
-    protected final <T extends Enum<T>> String consume(Class<T> clazz, T... expected) throws ReaderException {
+    protected final <E extends Enum<E>> String consume(Class<E> clazz, E... expected) throws ReaderException {
         final int length = expected.length;
         int[] array = new int[length];
         for (int i = 0; i < length; i++)
@@ -35,10 +37,10 @@ public abstract class AbstractParser {
         return consume(clazz, array);
     }
 
-    protected <T extends Enum<T>> String consume(Class<T> clazz, int... expected) throws ReaderException {
+    protected <E extends Enum<E>> String consume(Class<E> clazz, int... expected) throws ReaderException {
         boolean contains = nextIs(expected);
         if (!contains) {
-            T[] types = clazz.getEnumConstants();
+            E[] types = clazz.getEnumConstants();
             throw new UnexpectedTokenException(lexer, lookahead, types);
         }
         String value = lookahead.value();
@@ -47,7 +49,7 @@ public abstract class AbstractParser {
     }
 
     @SafeVarargs
-    protected final <T extends Enum<T>> boolean nextIs(T... types) {
+    protected final <E extends Enum<E>> boolean nextIs(E... types) {
         final int length = types.length;
         int[] array = new int[length];
         for (int i = 0; i < length; i++)

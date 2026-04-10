@@ -5,29 +5,18 @@ import me.spencernold.janus.fw.Protocol;
 import me.spencernold.janus.interrupt.InetFrame;
 import me.spencernold.janus.interrupt.Query;
 
-public class UdpQuery extends Query {
+public class TransportAddressQuery extends Query {
 
+    private final Protocol protocol;
     private final int port;
 
-    public UdpQuery(int port) {
+    public TransportAddressQuery(Protocol protocol, int port) {
+        this.protocol = protocol;
         this.port = port;
     }
 
     public static boolean isIntended(Firewall firewall, InetFrame frame) {
-        if (frame.getProtocol() != Protocol.UDP)
-            return false;
-        int offset = frame.getTransportLayerStart();
-        if (offset == -1)
-            return false;
-        if (frame.getLength() < (offset + 2))
-            return false;
-        int port = getPort(frame.getData(), offset);
-        return firewall.port() == port;
-    }
-
-    @Override
-    public boolean test(InetFrame frame) {
-        if (frame.getProtocol() != Protocol.UDP)
+        if (frame.getProtocol() != firewall.protocol())
             return false;
         int offset = frame.getTransportLayerStart();
         if (offset == -1)
@@ -35,6 +24,19 @@ public class UdpQuery extends Query {
         if (frame.getLength() < (offset + 4))
             return false;
         int port = getPort(frame.getData(), offset + 2);
+        return firewall.port() == port;
+    }
+
+    @Override
+    public boolean test(InetFrame frame) {
+        if (frame.getProtocol() != protocol)
+            return false;
+        int offset = frame.getTransportLayerStart();
+        if (offset == -1)
+            return false;
+        if (frame.getLength() < (offset + 2))
+            return false;
+        int port = getPort(frame.getData(), offset);
         return this.port == port;
     }
 

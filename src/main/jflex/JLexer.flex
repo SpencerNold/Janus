@@ -44,6 +44,7 @@ WHITESPACE = [ \t\r]+
 MAC        = [A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}:[A-Fa-f0-9]{2}
 V4CIDR     = [0-9]+\.[0-9]+\.[0-9]+\.[0-9]+(\/[0-9]+)?
 PORT       = [0-9]+
+HEX_ARR    = 0x[A-Fa-f0-9]+
 IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 
 %%
@@ -60,12 +61,24 @@ IDENTIFIER = [a-zA-Z_][a-zA-Z0-9_]*
 "udp"             { return token(JType.UDP); }
 
 "address"         { return token(JType.ADDRESS); }
+"body"            { return token(JType.BODY); }
 
 "="               { return token(JType.EQ_OPER); }
+"contains"        { return token(JType.CONTAINS); }
+
+"not"|"!"         { return token(JType.NOT_OPER); }
+"and"             { return token(JType.AND); }
 
 {MAC}             { return token(JType.MAC); }
 {V4CIDR}          { return token(JType.V4CIDR); }
-{PORT}            { return token(JType.PORT); }
+{PORT}            { return token(JType.NUMBER); }
+
+"{"               { return token(JType.O_CURLY); }
+"}"               { return token(JType.C_CURLY); }
+{HEX_ARR}         { return token(JType.HEX_ARR); }
+"["               { return token(JType.O_BRACKET); }
+","               { return token(JType.COMMA); }
+"]"               { return token(JType.C_BRACKET); }
 
 <<EOF>>           { return new Token(JType.EOF.ordinal(), "", yyline, yycolumn); }
 
