@@ -40,6 +40,14 @@ public class TransportAddressQuery extends Query {
         return this.port == port;
     }
 
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public int getPort() {
+        return port;
+    }
+
     private static int getPort(byte[] data, int offset) {
         return ((data[offset] & 0xFF) << 8) | (data[offset + 1] & 0xFF);
     }

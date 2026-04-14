@@ -25,6 +25,14 @@ public class BodyQuery extends Query {
         return true;
     }
 
+    public Protocol getProtocol() {
+        return protocol;
+    }
+
+    public Test[] getTests() {
+        return tests;
+    }
+
     public static class Test {
 
         private final int offset;
@@ -51,6 +59,18 @@ public class BodyQuery extends Query {
                 }
             }
             return invert != match;
+        }
+
+        public int getOffset() {
+            return offset;
+        }
+
+        public byte[] getTarget() {
+            return target;
+        }
+
+        public boolean isInverted() {
+            return invert;
         }
     }
 }

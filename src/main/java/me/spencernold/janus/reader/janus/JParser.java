@@ -13,6 +13,7 @@ import me.spencernold.janus.reader.exceptions.SyntaxException;
 import me.spencernold.janus.reader.exceptions.UnexpectedTokenException;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class JParser extends AbstractParser<List<Query>> {
@@ -164,9 +165,9 @@ public class JParser extends AbstractParser<List<Query>> {
     private BodyQuery parseBodyExpr(Protocol protocol) throws ReaderException {
         // BodyExpr -> BodyClause BodyExprTail
         consume(JType.class, JType.BODY);
-        BodyQuery.Test test = parseBodyClause();
-        List<BodyQuery.Test> tests = parseBodyExprTrail();
-        tests.add(test);
+        List<BodyQuery.Test> tests = new ArrayList<>();
+        tests.add(parseBodyClause());
+        tests.addAll(parseBodyExprTrail());
         return new BodyQuery(protocol, tests.toArray(new BodyQuery.Test[0]));
     }
 
@@ -177,9 +178,9 @@ public class JParser extends AbstractParser<List<Query>> {
         JType[] followOfBodyExprTail = new JType[]{JType.ETH, JType.IPV4, JType.IPV6, JType.TCP, JType.UDP, JType.EOF};
         if (nextIs(JType.AND)) {
             consume(JType.class, JType.AND);
-            BodyQuery.Test test = parseBodyClause();
-            List<BodyQuery.Test> tests = parseBodyExprTrail();
-            tests.add(test);
+            List<BodyQuery.Test> tests = new ArrayList<>();
+            tests.add(parseBodyClause());
+            tests.addAll(parseBodyExprTrail());
             return tests;
         } else if (nextIs(followOfBodyExprTail)) {
             // epsilon
