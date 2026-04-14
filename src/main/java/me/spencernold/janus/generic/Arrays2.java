@@ -25,6 +25,13 @@ public class Arrays2 {
         return array;
     }
 
+    public static <T> T[] transform(T[] array, Function<T, T> function) {
+        final int length = array.length;
+        for (int i = 0; i < length; i++)
+            array[i] = function.apply(array[i]);
+        return array;
+    }
+
     public static byte[] toByteArray(List<Byte> list) {
         final int length = list.size();
         byte[] array = new byte[length];
