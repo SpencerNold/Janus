@@ -9,37 +9,58 @@ public record Ip4Range(long min, long max) {
 
     private static final Pattern PATTERN = Pattern.compile("^(\\d{1,3})\\.(\\d{1,3})\\.(\\d{1,3}).(\\d{1,3})(?:/(\\d{1,2}))?$");
 
+    /**
+     * Tests if the input parameter is within the CIDR range of this record.
+     *
+     * @param address address to check against the record
+     * @return true if the parameter matches, false otherwise
+     */
     public boolean test(long address) {
         return address >= min && address <= max;
     }
 
+    /**
+     * Tests if the input parameter is within the CIDR range of this record.
+     *
+     * @param address address to check against the record
+     * @return true if the parameter matches, false otherwise
+     */
     public boolean test(String address) throws SyntaxException {
         return test(parseRange(address));
     }
 
+    /**
+     * Tests if the input parameter is within the CIDR range of this record.
+     *
+     * @param range address to check against the record
+     * @return true if the parameter matches, false otherwise
+     */
     public boolean test(Ip4Range range) {
-        if (range.min > range.max)
-            return false; // Bad input
+        if (range.min > range.max) return false; // Bad input
         return range.min >= min && range.max <= max;
     }
 
+    /**
+     * Parses IPv4 address notation from a string in the pattern of CIDR with only one mask group.
+     *
+     * @param cidr String CIDR representation of an address.
+     * @return Ipv4Range record of the input address
+     * @throws SyntaxException should the IPv4 address not be in CIDR format
+     */
     public static Ip4Range parseRange(String cidr) throws SyntaxException {
         Matcher matcher = PATTERN.matcher(cidr);
-        if (!matcher.find())
-            throw new SyntaxException("IP not in CIDR notation: " + cidr);
-        long ip = 0 ;
+        if (!matcher.find()) throw new SyntaxException("IP not in CIDR notation: " + cidr);
+        long ip = 0;
         for (int i = 1; i <= 4; i++) {
             String str = matcher.group(i);
             int value = Integer.parseInt(str);
-            if (value < 0 || value > 255)
-                throw new SyntaxException("value in IP not in [0-255] range: " + cidr);
+            if (value < 0 || value > 255) throw new SyntaxException("value in IP not in [0-255] range: " + cidr);
             ip = (ip << 8) | (long) value;
         }
         String str = matcher.group(5);
         if (str != null) {
             int prefix = Integer.parseInt(str);
-            if (prefix < 0 || prefix > 32)
-                throw new SyntaxException("mask in CIDR must be [0-32]: " + cidr);
+            if (prefix < 0 || prefix > 32) throw new SyntaxException("mask in CIDR must be [0-32]: " + cidr);
             long mask = prefix == 0 ? 0 : (-1L << (32 - prefix)) & 0xFFFFFFFFL;
             long network = ip & mask;
             long broadcast = (network | ~mask) & 0xFFFFFFFFL;
@@ -50,8 +71,7 @@ public record Ip4Range(long min, long max) {
 
     @Override
     public boolean equals(Object obj) {
-        if (!(obj instanceof Ip4Range ip))
-            return false;
+        if (!(obj instanceof Ip4Range ip)) return false;
         return ip.min == min && ip.max == max;
     }
 }
