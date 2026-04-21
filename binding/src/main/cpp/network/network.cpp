@@ -1,7 +1,11 @@
-#if defined(__APPLE__) && defined(__MACH__)
 #include "network.h"
 
-#include <arpa/inet.h>
+#ifdef _WIN32
+    #include <winsock2.h>
+    #include <ws2tcpip.h>
+#else
+    #include <arpa/inet.h>
+#endif
 #include <string.h>
 #include <inttypes.h>
 
@@ -125,5 +129,3 @@ int net_get_transport_layer_end(unsigned char* data, int length) {
     }
     return -1;
 }
-
-#endif

@@ -1,4 +1,5 @@
-#include "executor.h"
+#if defined(__APPLE__) && defined(__MACH__)
+#include "../executor.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -16,3 +17,5 @@ int exec_streamable(const char* cmd, void (*consumer)(const char*)) {
     pclose(fp);
     return 0;
 }
+
+#endif

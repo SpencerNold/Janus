@@ -3,11 +3,11 @@
 
 struct pcap_handle {
     void* handle;
-    char* interface;
+    char* iface;
 };
 
 pcap_handle* pch_open();
-pcap_handle* pch_open(char* interface);
+pcap_handle* pch_open(char* iface);
 void pch_send(pcap_handle* handle, const unsigned char* data, int length);
 void pch_listen(pcap_handle* handle, void (*function)(pcap_handle*, const unsigned char* data, int length));
 void pch_ignore(pcap_handle* handle);

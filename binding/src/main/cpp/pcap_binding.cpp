@@ -18,8 +18,8 @@ Java_me_spencernold_janus_binding_PacketCapture_pcOpen(JNIEnv* env, jclass clazz
 extern "C" JNIEXPORT jstring JNICALL
 Java_me_spencernold_janus_binding_PacketCapture_pcGetInterfaceName(JNIEnv* env, jclass clazz, jlong handle) {
     pcap_handle* pcap = (pcap_handle*) handle;
-    char* interface = pcap->interface;
-    return env->NewStringUTF(interface);
+    char* iface = pcap->iface;
+    return env->NewStringUTF(iface);
 }
 
 extern "C" JNIEXPORT jboolean JNICALL

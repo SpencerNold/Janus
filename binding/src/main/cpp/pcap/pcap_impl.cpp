@@ -1,4 +1,3 @@
-#if defined(__APPLE__) && defined(__MACH__)
 #include "pcap_impl.h"
 
 #include <stdio.h>
@@ -25,12 +24,12 @@ pcap_handle* pch_open() {
     return handle;
 }
 
-pcap_handle* pch_open(char* interface) {
+pcap_handle* pch_open(char* iface) {
     pcap_handle* handle = (pcap_handle*) malloc(sizeof(pcap_handle));
     if (handle == NULL) {
         return NULL;
     }
-    char* name = strdup(interface);
+    char* name = strdup(iface);
     if (name == NULL) {
         free(handle);
         return NULL;
@@ -43,7 +42,7 @@ pcap_handle* pch_open(char* interface) {
         perror(errbuf);
         return NULL;
     }
-    handle->interface = name;
+    handle->iface = name;
     handle->handle = pcap;
     return handle;
 }
@@ -71,8 +70,6 @@ void pch_ignore(pcap_handle* handle) {
 
 void pch_close(pcap_handle* handle) {
     pcap_close((pcap_t*) handle->handle);
-    free(handle->interface);
+    free(handle->iface);
     free(handle);
 }
-
-#endif
